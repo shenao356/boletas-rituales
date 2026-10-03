@@ -27,48 +27,59 @@ const DEFAULT_SETTINGS = {
 // Realistic sample seed data for electronic music festivals
 const INITIAL_INVENTORY = [
   {
-    id: 'inv-1',
+    id: 'inv-combo-anytime',
     event: 'Rituales Fest 2026',
-    category: 'VIP Early Bird',
-    quantityBought: 20,
-    costUnit: 280000,
+    category: 'COMBO ANYTIME',
+    quantityBought: 13,
+    costUnit: 260000,
     suggestedPrice: 380000,
     location: 'Medellín - Parque Norte',
     date: '2026-11-01',
-    notes: 'Compradas en preventa bancaria'
+    notes: 'Lote oficial COMBO ANYTIME (13 boletas)'
   },
   {
-    id: 'inv-2',
+    id: 'inv-combo-early',
     event: 'Rituales Fest 2026',
-    category: 'General Combo 2 Días',
-    quantityBought: 30,
-    costUnit: 210000,
-    suggestedPrice: 290000,
+    category: 'COMBO EARLY',
+    quantityBought: 12,
+    costUnit: 220000,
+    suggestedPrice: 320000,
     location: 'Medellín - Parque Norte',
     date: '2026-11-01',
-    notes: 'Etapa 1'
+    notes: 'Lote oficial COMBO EARLY (12 boletas)'
   },
   {
-    id: 'inv-3',
-    event: 'Afterlife Medellín',
-    category: 'VIP Individual',
-    quantityBought: 15,
+    id: 'inv-combo-early-cat-c',
+    event: 'Rituales Fest 2026',
+    category: 'COMBO EARLY CAT C',
+    quantityBought: 2,
+    costUnit: 240000,
+    suggestedPrice: 340000,
+    location: 'Medellín - Parque Norte',
+    date: '2026-11-01',
+    notes: 'Lote oficial COMBO EARLY CAT C (2 boletas)'
+  },
+  {
+    id: 'inv-combo-vip-early',
+    event: 'Rituales Fest 2026',
+    category: 'COMBO VIP EARLY',
+    quantityBought: 1,
     costUnit: 350000,
     suggestedPrice: 480000,
-    location: 'Estadio Cincuentenario',
-    date: '2026-10-18',
-    notes: 'Tale of Us / Anyma'
+    location: 'Medellín - Parque Norte',
+    date: '2026-11-01',
+    notes: 'Lote oficial COMBO VIP EARLY (1 boleta)'
   },
   {
-    id: 'inv-4',
-    event: 'Baum Festival Bogotá',
-    category: 'Backstage Experience',
-    quantityBought: 6,
-    costUnit: 600000,
-    suggestedPrice: 850000,
-    location: 'Corferias Bogotá',
-    date: '2026-05-24',
-    notes: 'Acceso total y tarima'
+    id: 'inv-combo-early-catc-cata',
+    event: 'Rituales Fest 2026',
+    category: 'COMBO EARLY CATC (CAT A)',
+    quantityBought: 1,
+    costUnit: 260000,
+    suggestedPrice: 370000,
+    location: 'Medellín - Parque Norte',
+    date: '2026-11-01',
+    notes: 'Lote oficial COMBO EARLY CATC (CAT A) (1 boleta)'
   }
 ];
 
@@ -76,90 +87,68 @@ const INITIAL_SALES = [
   {
     id: 'sale-001',
     consecutive: 1,
-    inventoryId: 'inv-1',
+    inventoryId: 'inv-combo-anytime',
     event: 'Rituales Fest 2026',
-    category: 'VIP Early Bird',
+    category: 'COMBO ANYTIME',
     quantity: 2,
-    costUnit: 280000,
-    salePriceUnit: 390000,
-    totalCost: 560000,
-    totalSale: 780000,
-    profit: 220000,
-    profitSantiago: 110000,
-    profitSebas: 110000,
+    costUnit: 260000,
+    salePriceUnit: 380000,
+    totalCost: 520000,
+    totalSale: 760000,
+    profit: 240000,
+    profitSantiago: 120000,
+    profitSebas: 120000,
     customerName: 'Camila Restrepo',
     customerPhone: '3124567890',
     saleDate: '2026-09-25T14:30',
     paymentStatus: 'pagado', // pagado, pendiente, abono
-    amountPaid: 780000,
+    amountPaid: 760000,
     liquidationStatus: 'liquidado', // liquidado, pendiente
     notes: 'Transferencia Bancolombia verificada por Sebas'
   },
   {
     id: 'sale-002',
     consecutive: 2,
-    inventoryId: 'inv-2',
+    inventoryId: 'inv-combo-early',
     event: 'Rituales Fest 2026',
-    category: 'General Combo 2 Días',
-    quantity: 4,
-    costUnit: 210000,
-    salePriceUnit: 295000,
-    totalCost: 840000,
-    totalSale: 1180000,
-    profit: 340000,
-    profitSantiago: 170000,
-    profitSebas: 170000,
+    category: 'COMBO EARLY',
+    quantity: 2,
+    costUnit: 220000,
+    salePriceUnit: 320000,
+    totalCost: 440000,
+    totalSale: 640000,
+    profit: 200000,
+    profitSantiago: 100000,
+    profitSebas: 100000,
     customerName: 'Mateo Gómez (DJ Teo)',
     customerPhone: '3008976543',
     saleDate: '2026-09-28T18:15',
     paymentStatus: 'pagado',
-    amountPaid: 1180000,
+    amountPaid: 640000,
     liquidationStatus: 'liquidado',
     notes: 'Pagó por Nequi'
   },
   {
     id: 'sale-003',
     consecutive: 3,
-    inventoryId: 'inv-3',
-    event: 'Afterlife Medellín',
-    category: 'VIP Individual',
-    quantity: 2,
-    costUnit: 350000,
-    salePriceUnit: 500000,
-    totalCost: 700000,
-    totalSale: 1000000,
-    profit: 300000,
-    profitSantiago: 150000,
-    profitSebas: 150000,
+    inventoryId: 'inv-combo-early-cat-c',
+    event: 'Rituales Fest 2026',
+    category: 'COMBO EARLY CAT C',
+    quantity: 1,
+    costUnit: 240000,
+    salePriceUnit: 350000,
+    totalCost: 240000,
+    totalSale: 350000,
+    profit: 110000,
+    profitSantiago: 55000,
+    profitSebas: 55000,
     customerName: 'Valentina Osorio',
     customerPhone: '3157778899',
     saleDate: '2026-10-01T20:00',
     paymentStatus: 'pendiente',
-    amountPaid: 500000, // Abonó la mitad
+    amountPaid: 200000, // Abonó parte
     liquidationStatus: 'pendiente',
-    notes: 'Debe $500.000 para pagar antes del viernes'
-  },
-  {
-    id: 'sale-004',
-    consecutive: 4,
-    inventoryId: 'inv-4',
-    event: 'Baum Festival Bogotá',
-    category: 'Backstage Experience',
-    quantity: 1,
-    costUnit: 600000,
-    salePriceUnit: 870000,
-    totalCost: 600000,
-    totalSale: 870000,
-    profit: 270000,
-    profitSantiago: 135000,
-    profitSebas: 135000,
-    customerName: 'Andrés Felipe Correa',
-    customerPhone: '3104443322',
-    saleDate: '2026-10-02T11:45',
-    paymentStatus: 'pagado',
-    amountPaid: 870000,
-    liquidationStatus: 'pendiente',
-    notes: 'Falta cuadrar liquidación entre Santiago y Sebas'
+    notes: 'Debe $150.000 para pagar antes del viernes'
   }
 ];
 
@@ -194,10 +183,25 @@ class StorageManager {
         localStorage.setItem(STORAGE_KEYS.INVENTORY, JSON.stringify(INITIAL_INVENTORY));
         return [...INITIAL_INVENTORY];
       }
-      return JSON.parse(data);
+      
+      let items = JSON.parse(data);
+      // Ensure the 5 requested combo batches exist in current storage
+      let needsSave = false;
+      INITIAL_INVENTORY.forEach(initItem => {
+        const found = items.find(i => i.category.trim().toUpperCase() === initItem.category.trim().toUpperCase());
+        if (!found) {
+          items.unshift(initItem);
+          needsSave = true;
+        }
+      });
+
+      if (needsSave) {
+        localStorage.setItem(STORAGE_KEYS.INVENTORY, JSON.stringify(items));
+      }
+      return items;
     } catch (e) {
       console.error('Error loading inventory', e);
-      return [];
+      return [...INITIAL_INVENTORY];
     }
   }
 
