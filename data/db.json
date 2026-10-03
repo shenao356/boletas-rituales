@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "updatedAt": "2026-10-03T22:20:43.832Z",
+  "updatedAt": "2026-10-03T22:21:28.533Z",
   "updatedBy": "Santiago",
   "settings": {
     "partner1": "Santiago",
@@ -13,7 +13,7 @@
     "supabaseUrl": "",
     "supabaseKey": "",
     "cloudSyncEnabled": false,
-    "lastUpdated": 1791066043832
+    "lastUpdated": 1791066088533
   },
   "inventory": [
     {
@@ -73,6 +73,28 @@
     }
   ],
   "sales": [
+    {
+      "id": "sale-1791066087087",
+      "consecutive": 5,
+      "inventoryId": "inv-combo-early-catc-cata",
+      "event": "Rituales Fest 2026",
+      "category": "COMBO EARLY CATC (CAT A)",
+      "quantity": 5,
+      "costUnit": 260000,
+      "salePriceUnit": 600000,
+      "totalCost": 1300000,
+      "totalSale": 3000000,
+      "profit": 1700000,
+      "profitSantiago": 850000,
+      "profitSebas": 850000,
+      "customerName": "Andres",
+      "customerPhone": "",
+      "saleDate": "2026-10-03T17:21",
+      "paymentStatus": "pagado",
+      "amountPaid": 3000000,
+      "liquidationStatus": "pendiente",
+      "notes": ""
+    },
     {
       "id": "sale-1791066042381",
       "consecutive": 4,
