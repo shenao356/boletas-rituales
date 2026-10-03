@@ -556,6 +556,9 @@
               </p>
             </div>
 
+            <!-- Settings Diagnostic Feedback Box -->
+            <div id="settings-token-feedback" class="hidden"></div>
+
             <div class="flex flex-wrap items-center gap-2 pt-2">
               <button onclick="window.ui.saveGitHubTokenFromSettings()" class="btn-primary text-xs py-2 px-4">
                 Guardar Token y Conectar ☁️
@@ -872,11 +875,14 @@
           </div>
         </div>
 
+        <!-- Live Diagnostic Feedback Box -->
+        <div id="modal-token-feedback" class="hidden"></div>
+
         <div class="flex items-center justify-end gap-2 pt-3 border-t border-purple-500/20">
           <button type="button" onclick="window.ui.closeModal('modal-github-token')" class="btn-secondary text-xs py-2 px-4">
             Cancelar
           </button>
-          <button type="button" onclick="window.ui.saveGitHubTokenFromModal()" class="btn-primary text-xs py-2 px-5">
+          <button type="button" id="btn-modal-token-submit" onclick="window.ui.saveGitHubTokenFromModal()" class="btn-primary text-xs py-2 px-5">
             Conectar y Sincronizar 🚀
           </button>
         </div>

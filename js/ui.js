@@ -263,7 +263,10 @@ class UIManager {
   // Save GitHub Token from Settings Tab
   async saveGitHubTokenFromSettings() {
     const tokenInput = document.getElementById('settings-gh-token');
-    const token = tokenInput ? tokenInput.value.trim() : '';
+    const repoInput = document.getElementById('settings-gh-repo');
+    const feedbackEl = document.getElementById('settings-token-feedback');
+    const token = tokenInput ? tokenInput.value.trim().replace(/^["']|["']$/g, '') : '';
+    const repo = repoInput ? repoInput.value.trim() : 'shenao356/boletas-rituales';
 
     if (!token) {
       this.showToast('Por favor ingresa un token válido de GitHub', 'warning');
@@ -271,15 +274,40 @@ class UIManager {
     }
 
     if (window.sync) {
-      await window.sync.setToken(token);
-      this.showToast('Token guardado. ¡Conectado al repositorio de GitHub!', 'success');
+      window.sync.repo = repo;
+      localStorage.setItem('rituales_gh_repo', repo);
+
+      if (feedbackEl) {
+        feedbackEl.className = 'block p-3 rounded-xl text-xs bg-cyan-950/80 border border-cyan-500/40 text-cyan-300 animate-pulse';
+        feedbackEl.innerHTML = '⏳ Verificando token con GitHub...';
+      }
+
+      const test = await window.sync.testConnection(token);
+
+      if (test.ok) {
+        if (feedbackEl) {
+          feedbackEl.className = 'block p-3 rounded-xl text-xs bg-emerald-950/80 border border-emerald-500/40 text-emerald-300';
+          feedbackEl.innerHTML = `<b>${test.message}</b>`;
+        }
+        this.showToast(`¡Conectado como @${test.username}!`, 'success');
+        // Push local data to ensure repository is in sync
+        await window.sync.pushToGitHub('Conexión inicial desde Ajustes');
+      } else {
+        if (feedbackEl) {
+          feedbackEl.className = 'block p-3 rounded-xl text-xs bg-rose-950/80 border border-rose-500/40 text-rose-300 leading-relaxed';
+          feedbackEl.innerHTML = `<b>${test.message}</b>`;
+        }
+        this.showToast('Error al conectar con GitHub', 'error');
+      }
     }
   }
 
   // Save GitHub Token from Modal
   async saveGitHubTokenFromModal() {
     const tokenInput = document.getElementById('modal-gh-token-input');
-    const token = tokenInput ? tokenInput.value.trim() : '';
+    const feedbackEl = document.getElementById('modal-token-feedback');
+    const submitBtn = document.getElementById('btn-modal-token-submit');
+    const token = tokenInput ? tokenInput.value.trim().replace(/^["']|["']$/g, '') : '';
 
     if (!token) {
       this.showToast('Por favor pega tu token de GitHub', 'warning');
@@ -287,12 +315,40 @@ class UIManager {
     }
 
     if (window.sync) {
-      await window.sync.setToken(token);
-      this.closeModal('modal-github-token');
-      this.loadSettingsForm();
-      this.showToast('🚀 ¡Celulares conectados con GitHub en tiempo real!', 'success');
-      if (typeof confetti === 'function') {
-        confetti({ particleCount: 60, spread: 70, origin: { y: 0.6 } });
+      if (feedbackEl) {
+        feedbackEl.className = 'block p-3 rounded-xl text-xs bg-cyan-950/80 border border-cyan-500/40 text-cyan-300 animate-pulse';
+        feedbackEl.innerHTML = '⏳ Verificando token y permisos con GitHub...';
+      }
+      if (submitBtn) submitBtn.disabled = true;
+
+      const test = await window.sync.testConnection(token);
+
+      if (test.ok) {
+        if (feedbackEl) {
+          feedbackEl.className = 'block p-3 rounded-xl text-xs bg-emerald-950/80 border border-emerald-500/40 text-emerald-300';
+          feedbackEl.innerHTML = `<b>${test.message}</b>`;
+        }
+        this.showToast(`🚀 ¡Conectado como @${test.username}!`, 'success');
+        this.loadSettingsForm();
+
+        // Push local state to GitHub repository
+        await window.sync.pushToGitHub('Conexión inicial desde modal');
+
+        if (typeof confetti === 'function') {
+          confetti({ particleCount: 70, spread: 70, origin: { y: 0.6 } });
+        }
+
+        setTimeout(() => {
+          this.closeModal('modal-github-token');
+          if (submitBtn) submitBtn.disabled = false;
+        }, 1500);
+      } else {
+        if (feedbackEl) {
+          feedbackEl.className = 'block p-3 rounded-xl text-xs bg-rose-950/80 border border-rose-500/40 text-rose-300 leading-relaxed';
+          feedbackEl.innerHTML = `<b>${test.message}</b>`;
+        }
+        this.showToast('Error al conectar con GitHub', 'error');
+        if (submitBtn) submitBtn.disabled = false;
       }
     }
   }
