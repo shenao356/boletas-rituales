@@ -242,12 +242,68 @@ class UIManager {
     const inpSplit1 = document.getElementById('settings-split1');
     const inpSplit2 = document.getElementById('settings-split2');
     const selTheme = document.getElementById('settings-theme-select');
+    const inpGhToken = document.getElementById('settings-gh-token');
 
     if (inpP1) inpP1.value = s.partner1 || 'Santiago';
     if (inpP2) inpP2.value = s.partner2 || 'Sebas';
     if (inpSplit1) inpSplit1.value = s.split1 || 50;
     if (inpSplit2) inpSplit2.value = s.split2 || 50;
     if (selTheme) selTheme.value = s.theme || 'neon';
+    if (inpGhToken && window.sync) inpGhToken.value = window.sync.token || '';
+  }
+
+  // Toggle Token Input Visibility (Password / Text)
+  toggleTokenVisibility(inputId) {
+    const el = document.getElementById(inputId);
+    if (el) {
+      el.type = el.type === 'password' ? 'text' : 'password';
+    }
+  }
+
+  // Save GitHub Token from Settings Tab
+  async saveGitHubTokenFromSettings() {
+    const tokenInput = document.getElementById('settings-gh-token');
+    const token = tokenInput ? tokenInput.value.trim() : '';
+
+    if (!token) {
+      this.showToast('Por favor ingresa un token válido de GitHub', 'warning');
+      return;
+    }
+
+    if (window.sync) {
+      await window.sync.setToken(token);
+      this.showToast('Token guardado. ¡Conectado al repositorio de GitHub!', 'success');
+    }
+  }
+
+  // Save GitHub Token from Modal
+  async saveGitHubTokenFromModal() {
+    const tokenInput = document.getElementById('modal-gh-token-input');
+    const token = tokenInput ? tokenInput.value.trim() : '';
+
+    if (!token) {
+      this.showToast('Por favor pega tu token de GitHub', 'warning');
+      return;
+    }
+
+    if (window.sync) {
+      await window.sync.setToken(token);
+      this.closeModal('modal-github-token');
+      this.loadSettingsForm();
+      this.showToast('🚀 ¡Celulares conectados con GitHub en tiempo real!', 'success');
+      if (typeof confetti === 'function') {
+        confetti({ particleCount: 60, spread: 70, origin: { y: 0.6 } });
+      }
+    }
+  }
+
+  // Disconnect GitHub Token
+  clearGitHubToken() {
+    if (confirm('¿Desconectar el Token de GitHub? La app funcionará en modo local únicamente.')) {
+      if (window.sync) window.sync.clearToken();
+      this.loadSettingsForm();
+      this.showToast('Token de GitHub eliminado', 'info');
+    }
   }
 
   // Save Settings from form

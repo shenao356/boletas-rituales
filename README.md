@@ -95,7 +95,26 @@ git push -u origin main
 
 ---
 
-## 💾 Respaldo y Sincronización de Datos
+## ☁️ Sincronización en Tiempo Real entre Dispositivos (GitHub)
+
+Para que cada venta o lote de inventario que registres en tu celular se actualice automáticamente en el repositorio de GitHub y aparezca en el celular de Sebas y en cualquier computador:
+
+1. **Obtén tu Token de GitHub (Se hace una sola vez en 30 segundos)**:
+   - Ingresa a este enlace directo: [github.com/settings/tokens/new?scopes=repo&description=Boletas+Rituales+Sync](https://github.com/settings/tokens/new?scopes=repo&description=Boletas+Rituales+Sync).
+   - En **"Note"** pon: `Boletas Rituales`.
+   - Asegúrate de marcar la casilla **`repo`** (acceso completo al repositorio).
+   - Baja y haz clic en **"Generate token"**.
+   - Copia el código generado (empieza por `ghp_...`).
+2. **Pega el Token en la App**:
+   - En la aplicación, toca la nube en el menú superior o ve a la pestaña **⚙️ Ajustes > Sincronización en Tiempo Real**.
+   - Pega tu Token y dale a **"Guardar Token y Conectar"**.
+3. **¡Listo!**:
+   - Cada vez que registres una venta, edites un precio o agregues inventario, la app hará un commit automático al archivo `data/db.json` en GitHub.
+   - Cualquier celular o computador conectado recibirá los cambios automáticamente cada 25 segundos o inmediatamente al presionar el botón **🔄 Sincronizar**.
+
+---
+
+## 💾 Respaldo Manual y Exportación
 - **Descargar Copia de Seguridad**: En la pestaña **⚙️ Ajustes**, haz clic en **"Descargar Copia JSON"**. Puedes compartir este archivo por WhatsApp entre Santiago y Sebas.
 - **Restaurar Copia**: El otro socio puede presionar **"Restaurar Copia JSON"** y cargar el archivo para tener exactamente los mismos datos actualizados.
 - **Exportar a Excel**: En la pestaña **🎟️ Ventas**, haz clic en **"Exportar Excel"** para descargar una hoja de cálculo con todos los números y detalles contables.

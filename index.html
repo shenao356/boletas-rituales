@@ -107,6 +107,12 @@
           🎨
         </button>
 
+        <!-- Cloud Sync Badge & Button -->
+        <div id="cloud-sync-status-badge"></div>
+        <button id="btn-manual-sync" onclick="window.sync.pullFromGitHub(true)" title="Sincronizar ahora con GitHub" class="p-2 rounded-xl bg-slate-800/60 border border-white/10 hover:bg-slate-700/60 transition text-sm">
+          🔄
+        </button>
+
         <!-- New Sale Primary Button -->
         <button onclick="window.sales.openAddModal()" class="btn-primary text-xs sm:text-sm py-2 px-3 sm:px-4">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
@@ -512,6 +518,61 @@
           </div>
         </div>
 
+        <!-- GitHub Real-time Cloud Sync -->
+        <div class="glass-card p-5 space-y-4 border-cyan-500/30 bg-gradient-to-br from-cyan-950/20 via-slate-900/60 to-purple-950/20">
+          <div class="flex items-center justify-between">
+            <h3 class="font-bold text-white text-base flex items-center gap-2">
+              <span>☁️ Sincronización en Tiempo Real con GitHub</span>
+            </h3>
+            <span class="text-xs bg-cyan-950 text-cyan-300 border border-cyan-500/40 px-2 py-0.5 rounded-full font-bold">
+              Multi-Dispositivo
+            </span>
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Permite que cada venta o lote de inventario que registres se guarde automáticamente en el repositorio de GitHub para que tanto <b>Santiago</b> como <b>Sebas</b> vean exactamente los mismos datos en cualquier celular o computador.
+          </p>
+
+          <div class="space-y-3 bg-black/40 p-4 rounded-xl border border-white/5 text-xs">
+            <div>
+              <label class="block font-semibold text-slate-300 mb-1">Repositorio GitHub</label>
+              <input type="text" id="settings-gh-repo" class="glass-input text-xs" value="shenao356/boletas-rituales" placeholder="usuario/repositorio">
+            </div>
+
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <label class="font-semibold text-slate-300">GitHub Personal Access Token (PAT)</label>
+                <a href="https://github.com/settings/tokens/new?scopes=repo&description=Boletas+Rituales+Sync" target="_blank" class="text-cyan-400 hover:text-cyan-300 text-[11px] underline flex items-center gap-1">
+                  <span>Generar Token en GitHub ↗</span>
+                </a>
+              </div>
+              <div class="relative">
+                <input type="password" id="settings-gh-token" class="glass-input text-xs pr-10 font-mono" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+                <button type="button" onclick="window.ui.toggleTokenVisibility('settings-gh-token')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white">
+                  👁️
+                </button>
+              </div>
+              <p class="text-[11px] text-slate-400 mt-1">
+                Solo necesitas crearlo una vez con permiso <code class="bg-slate-800 px-1 py-0.5 rounded text-purple-300">repo</code>. Se guarda de forma segura en tu navegador.
+              </p>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-2 pt-2">
+              <button onclick="window.ui.saveGitHubTokenFromSettings()" class="btn-primary text-xs py-2 px-4">
+                Guardar Token y Conectar ☁️
+              </button>
+              <button onclick="window.sync.pullFromGitHub(true)" class="btn-secondary text-xs py-2 px-3">
+                🔄 Sincronizar Ahora
+              </button>
+              <button onclick="window.sync.pushToGitHub('Sincronización manual desde Ajustes')" class="btn-secondary text-xs py-2 px-3">
+                ⬆️ Forzar Subida a GitHub
+              </button>
+              <button onclick="window.ui.clearGitHubToken()" class="text-xs text-rose-400 hover:text-rose-300 py-2 px-2 hover:underline">
+                Desconectar
+              </button>
+            </div>
+          </div>
+        </div>
+
         <!-- Backups & Data Management -->
         <div class="glass-card p-5 space-y-4">
           <h3 class="font-bold text-white text-base flex items-center gap-2">
@@ -770,6 +831,61 @@
   </div>
 
   <!-- ========================================================================= -->
+  <!-- MODAL: CONFIGURAR TOKEN DE GITHUB                                         -->
+  <!-- ========================================================================= -->
+  <div id="modal-github-token" class="modal-overlay">
+    <div class="modal-container p-5 sm:p-6">
+      
+      <div class="flex items-center justify-between pb-3 border-b border-purple-500/20 mb-4">
+        <h3 class="text-lg font-black text-white flex items-center gap-2">
+          ☁️ Conectar Celulares en la Nube (GitHub)
+        </h3>
+        <button onclick="window.ui.closeModal('modal-github-token')" class="text-slate-400 hover:text-white p-1 rounded-lg">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <div class="space-y-4 text-xs">
+        <p class="text-slate-300 leading-relaxed">
+          Para que los registros de ventas e inventario que hagas en tu celular se actualicen automáticamente en el celular de Sebas y en tu computador, solo necesitas ingresar tu <b>Token de GitHub</b>:
+        </p>
+
+        <div class="bg-purple-950/40 border border-purple-500/30 p-3.5 rounded-xl space-y-2">
+          <div class="font-bold text-white flex items-center gap-1.5 text-sm">
+            <span>⚡ Cómo obtener tu Token en 30 segundos:</span>
+          </div>
+          <ol class="list-decimal list-inside space-y-1.5 text-slate-300">
+            <li>Abre <a href="https://github.com/settings/tokens/new?scopes=repo&description=Boletas+Rituales+Sync" target="_blank" class="text-cyan-400 underline font-semibold">este enlace directo de GitHub ↗</a>.</li>
+            <li>En "Note" pon: <b>Boletas Rituales</b> y marca la casilla <b class="text-purple-300">repo</b> (acceso total).</li>
+            <li>Baja hasta el final y haz clic en el botón verde <b>"Generate token"</b>.</li>
+            <li>Copia el código que empieza por <code class="bg-black/60 px-1 py-0.5 rounded text-cyan-300">ghp_...</code> y pégalo aquí abajo:</li>
+          </ol>
+        </div>
+
+        <div>
+          <label class="block font-bold text-white mb-1.5">Pega tu Token de GitHub aquí:</label>
+          <div class="relative">
+            <input type="password" id="modal-gh-token-input" class="glass-input text-xs font-mono pr-10" placeholder="ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx">
+            <button type="button" onclick="window.ui.toggleTokenVisibility('modal-gh-token-input')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white">
+              👁️
+            </button>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-3 border-t border-purple-500/20">
+          <button type="button" onclick="window.ui.closeModal('modal-github-token')" class="btn-secondary text-xs py-2 px-4">
+            Cancelar
+          </button>
+          <button type="button" onclick="window.ui.saveGitHubTokenFromModal()" class="btn-primary text-xs py-2 px-5">
+            Conectar y Sincronizar 🚀
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
   <!-- FLOATING ACTION BUTTON (FAB) FOR MOBILE                                  -->
   <!-- ========================================================================= -->
   <button onclick="window.sales.openAddModal()" title="Registrar Venta Rápida" class="fab-btn">
@@ -804,6 +920,7 @@
 
   <!-- App Scripts -->
   <script src="js/storage.js"></script>
+  <script src="js/sync.js"></script>
   <script src="js/dashboard.js"></script>
   <script src="js/sales.js"></script>
   <script src="js/inventory.js"></script>

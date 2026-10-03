@@ -224,6 +224,7 @@ class StorageManager {
     };
     this.inventory.push(newItem);
     this.saveInventory(this.inventory);
+    if (window.sync) window.sync.notifyChange(`Nuevo lote: ${newItem.event} - ${newItem.category}`);
     return newItem;
   }
 
@@ -232,6 +233,7 @@ class StorageManager {
     if (index !== -1) {
       this.inventory[index] = { ...this.inventory[index], ...updatedFields };
       this.saveInventory(this.inventory);
+      if (window.sync) window.sync.notifyChange(`Actualizado lote: ${this.inventory[index].category}`);
       return this.inventory[index];
     }
     return null;
@@ -240,6 +242,7 @@ class StorageManager {
   deleteInventoryItem(id) {
     this.inventory = this.inventory.filter(item => item.id !== id);
     this.saveInventory(this.inventory);
+    if (window.sync) window.sync.notifyChange('Eliminado lote de inventario');
   }
 
   // Sales CRUD
@@ -304,6 +307,7 @@ class StorageManager {
 
     this.sales.unshift(newSale);
     this.saveSales(this.sales);
+    if (window.sync) window.sync.notifyChange(`Nueva venta #${newSale.consecutive} a ${newSale.customerName}`);
     return newSale;
   }
 
@@ -328,14 +332,18 @@ class StorageManager {
 
       this.sales[index] = merged;
       this.saveSales(this.sales);
+      if (window.sync) window.sync.notifyChange(`Actualizada venta #${merged.consecutive}`);
       return merged;
     }
     return null;
   }
 
   deleteSale(id) {
+    const sale = this.sales.find(s => s.id === id);
+    const cons = sale ? sale.consecutive : '';
     this.sales = this.sales.filter(s => s.id !== id);
     this.saveSales(this.sales);
+    if (window.sync) window.sync.notifyChange(`Eliminada venta #${cons}`);
   }
 
   // Calculate sold quantity for a specific inventory item
