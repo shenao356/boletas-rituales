@@ -18,13 +18,32 @@ class GitHubSyncManager {
   }
 
   init() {
-    // Initial sync from GitHub
+    // 1. Auto-login if token is provided via 1-click URL (?token=...)
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlToken = urlParams.get('token');
+      if (urlToken) {
+        this.token = urlToken.trim().replace(/^["']|["']$/g, '');
+        localStorage.setItem('rituales_gh_token', this.token);
+        // Clean URL from browser address bar
+        window.history.replaceState({}, document.title, window.location.pathname);
+        setTimeout(() => {
+          if (window.ui) {
+            window.ui.showToast('🚀 ¡Dispositivo conectado a GitHub automáticamente!', 'success');
+          }
+        }, 500);
+      }
+    } catch (e) {
+      console.warn('URL token parse error', e);
+    }
+
+    // 2. Initial sync from GitHub
     this.pullFromGitHub(false);
 
-    // Auto-poll GitHub every 20 seconds for updates
+    // 3. Auto-poll GitHub every 20 seconds for updates
     this.startAutoPolling();
 
-    // Pull when tab gains focus (e.g. phone unlocked or browser tab opened)
+    // 4. Pull when tab gains focus (e.g. phone unlocked or browser tab opened)
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible') {
         this.pullFromGitHub(false);

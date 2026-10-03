@@ -250,6 +250,8 @@ class UIManager {
     if (inpSplit2) inpSplit2.value = s.split2 || 50;
     if (selTheme) selTheme.value = s.theme || 'neon';
     if (inpGhToken && window.sync) inpGhToken.value = window.sync.token || '';
+    const modalTokenInput = document.getElementById('modal-gh-token-input');
+    if (modalTokenInput && window.sync) modalTokenInput.value = window.sync.token || '';
   }
 
   // Toggle Token Input Visibility (Password / Text)
@@ -359,6 +361,26 @@ class UIManager {
       if (window.sync) window.sync.clearToken();
       this.loadSettingsForm();
       this.showToast('Token de GitHub eliminado', 'info');
+    }
+  }
+
+  // Copy Direct Access Link with Token for Sebas
+  copyDirectAccessLink() {
+    const token = window.sync.token || '';
+    if (!token) {
+      this.showToast('Primero guarda tu token de GitHub', 'warning');
+      return;
+    }
+    const currentBase = window.location.origin + window.location.pathname;
+    const directUrl = `${currentBase}?token=${token}`;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(directUrl).then(() => {
+        this.showToast('📲 ¡Enlace copiado! Envíalo a Sebas por WhatsApp para que se conecte con 1 toque', 'success');
+      }).catch(() => {
+        prompt('Copia este enlace de acceso directo para Sebas:', directUrl);
+      });
+    } else {
+      prompt('Copia este enlace de acceso directo para Sebas:', directUrl);
     }
   }
 
