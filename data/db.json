@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "updatedAt": "2026-10-03T17:05:00.000Z",
+  "updatedAt": "2026-10-03T22:20:12.823Z",
   "updatedBy": "Santiago",
   "settings": {
     "partner1": "Santiago",
@@ -9,7 +9,11 @@
     "split2": 50,
     "currency": "COP",
     "currencySymbol": "$",
-    "theme": "neon"
+    "theme": "neon",
+    "supabaseUrl": "",
+    "supabaseKey": "",
+    "cloudSyncEnabled": false,
+    "lastUpdated": 1791066012823
   },
   "inventory": [
     {
