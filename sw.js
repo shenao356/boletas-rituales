@@ -1,14 +1,15 @@
-const CACHE_NAME = 'rituales-tickets-v1';
+const CACHE_NAME = 'rituales-tickets-v2.1';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
   './manifest.json',
   './css/styles.css',
-  './js/storage.js',
-  './js/dashboard.js',
-  './js/sales.js',
-  './js/inventory.js',
-  './js/ui.js',
+  './js/storage.js?v=2.1',
+  './js/sync.js?v=2.1',
+  './js/dashboard.js?v=2.1',
+  './js/sales.js?v=2.1',
+  './js/inventory.js?v=2.1',
+  './js/ui.js?v=2.1',
   './assets/icon.svg'
 ];
 
