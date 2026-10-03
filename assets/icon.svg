@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0a0b10"/>
+      <stop offset="50%" stop-color="#180e29"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <linearGradient id="ticketGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8b5cf6"/>
+      <stop offset="50%" stop-color="#d946ef"/>
+      <stop offset="100%" stop-color="#06b6d4"/>
+    </linearGradient>
+    <linearGradient id="boltGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#facc15"/>
+      <stop offset="100%" stop-color="#fb923c"/>
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="16" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- Background rounded rect -->
+  <rect width="512" height="512" rx="110" fill="url(#bgGrad)"/>
+  <rect width="504" height="504" x="4" y="4" rx="106" fill="none" stroke="url(#ticketGrad)" stroke-width="8" opacity="0.6"/>
+
+  <!-- Outer Ticket Silhouette -->
+  <g filter="url(#glow)">
+    <path d="M120 180 C120 150 144 126 174 126 L338 126 C368 126 392 150 392 180 C392 205 375 226 352 232 C352 240 352 272 352 280 C375 286 392 307 392 332 C392 362 368 386 338 386 L174 386 C144 386 120 362 120 332 C120 307 137 286 160 280 C160 272 160 240 160 232 C137 226 120 205 120 180 Z" fill="rgba(139, 92, 246, 0.2)" stroke="url(#ticketGrad)" stroke-width="8" />
+  </g>
+
+  <!-- Lightning Bolt (Electronic Music Energy) -->
+  <path d="M275 160 L195 270 L255 270 L235 352 L320 242 L260 242 Z" fill="url(#boltGrad)" filter="url(#glow)" />
+
+  <!-- Dots & Details -->
+  <circle cx="210" cy="160" r="6" fill="#06b6d4" opacity="0.8" />
+  <circle cx="302" cy="352" r="6" fill="#ec4899" opacity="0.8" />
+</svg>
