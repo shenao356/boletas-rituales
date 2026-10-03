@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "updatedAt": "2026-10-03T22:23:18.204Z",
+  "updatedAt": "2026-10-03T22:28:30.812Z",
   "updatedBy": "Santiago",
   "settings": {
     "partner1": "Santiago",
@@ -13,7 +13,7 @@
     "supabaseUrl": "",
     "supabaseKey": "",
     "cloudSyncEnabled": false,
-    "lastUpdated": 1791066198204
+    "lastUpdated": 1791066510812
   },
   "inventory": [
     {
@@ -73,6 +73,28 @@
     }
   ],
   "sales": [
+    {
+      "id": "sale-1791066509334",
+      "consecutive": 7,
+      "inventoryId": "inv-combo-vip-early",
+      "event": "Rituales Fest 2026",
+      "category": "COMBO VIP EARLY",
+      "quantity": 1,
+      "costUnit": 350000,
+      "salePriceUnit": 800000,
+      "totalCost": 350000,
+      "totalSale": 800000,
+      "profit": 450000,
+      "profitSantiago": 225000,
+      "profitSebas": 225000,
+      "customerName": "SEBAS PRUEBA",
+      "customerPhone": "3172295378",
+      "saleDate": "2026-10-03T17:27",
+      "paymentStatus": "pendiente",
+      "amountPaid": 800000,
+      "liquidationStatus": "pendiente",
+      "notes": "ES UNA PRUEBA, BORRAR"
+    },
     {
       "id": "sale-1791066196597",
       "consecutive": 6,
