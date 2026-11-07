@@ -7,6 +7,8 @@ class UIManager {
   constructor() {
     this.currentTab = 'dashboard';
     this.toastContainer = null;
+    this.customerFilter = 'all'; // all, debt, paid
+    this.customerSearch = '';
   }
 
   init() {
@@ -40,12 +42,8 @@ class UIManager {
       const match = btn.getAttribute('data-nav-tab') === tabId;
       if (match) {
         btn.classList.add('active');
-        btn.classList.add('text-purple-400');
-        btn.classList.remove('text-slate-400');
       } else {
         btn.classList.remove('active');
-        btn.classList.remove('text-purple-400');
-        btn.classList.add('text-slate-400');
       }
     });
 
@@ -63,12 +61,19 @@ class UIManager {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
+  // Shortcut from Dashboard KPI card to filter unpaid sales
+  filterPendingSalesFromDash() {
+    this.switchTab('sales');
+    if (window.sales) {
+      window.sales.applyQuickPreset('unpaid');
+    }
+  }
+
   // Theme application
   applyTheme(themeName) {
     document.documentElement.setAttribute('data-theme', themeName);
     window.storage.saveSettings({ theme: themeName });
 
-    // Update select in settings if present
     const select = document.getElementById('settings-theme-select');
     if (select) select.value = themeName;
   }
@@ -81,23 +86,23 @@ class UIManager {
     toast.className = 'toast';
 
     let icon = 'ℹ️';
-    let borderColor = 'border-purple-500/40';
+    let borderColor = 'border-cyan-500/40';
 
     if (type === 'success') {
       icon = '✅';
-      borderColor = 'border-emerald-500/60';
+      borderColor = 'border-emerald-500/50';
     } else if (type === 'warning') {
       icon = '⚠️';
-      borderColor = 'border-amber-500/60';
+      borderColor = 'border-amber-500/50';
     } else if (type === 'error') {
       icon = '❌';
-      borderColor = 'border-rose-500/60';
+      borderColor = 'border-rose-500/50';
     }
 
     toast.classList.add(borderColor);
     toast.innerHTML = `
-      <span class="text-xl">${icon}</span>
-      <div class="text-sm font-medium text-slate-100 flex-1">${message}</div>
+      <span class="text-base shrink-0">${icon}</span>
+      <div class="text-xs sm:text-sm font-medium text-slate-100 flex-1">${message}</div>
     `;
 
     this.toastContainer.appendChild(toast);
@@ -105,9 +110,9 @@ class UIManager {
     setTimeout(() => {
       toast.style.opacity = '0';
       toast.style.transform = 'translateX(100%)';
-      toast.style.transition = 'all 0.3s ease';
-      setTimeout(() => toast.remove(), 300);
-    }, 3500);
+      toast.style.transition = 'all 0.25s ease';
+      setTimeout(() => toast.remove(), 250);
+    }, 3400);
   }
 
   // Modal open/close helpers
@@ -127,6 +132,19 @@ class UIManager {
     }
   }
 
+  // Set customer filter pill
+  setCustomerFilter(filter) {
+    this.customerFilter = filter;
+    document.querySelectorAll('[data-cust-filter]').forEach(btn => {
+      if (btn.getAttribute('data-cust-filter') === filter) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    });
+    this.renderCustomers();
+  }
+
   // Render Customers Tab (Directorio de Compradores)
   renderCustomers() {
     const container = document.getElementById('customers-list');
@@ -142,90 +160,114 @@ class UIManager {
           name,
           phone: s.customerPhone || '',
           totalSpent: 0,
+          totalPaid: 0,
           totalTickets: 0,
-          events: new Set(),
+          categories: new Set(),
           pendingDebt: 0,
           salesCount: 0
         };
       }
 
-      const totalSale = Number(s.totalSale) || 0;
-      const amountPaid = Number(s.amountPaid) >= 0 ? Number(s.amountPaid) : totalSale;
-      const debt = Math.max(0, totalSale - amountPaid);
+      const { totalSale, paid, pending } = window.sales
+        ? window.sales.getSalePaymentBreakdown(s)
+        : { totalSale: Number(s.totalSale) || 0, paid: Number(s.amountPaid) || 0, pending: 0 };
 
       customerMap[name].totalSpent += totalSale;
+      customerMap[name].totalPaid += paid;
       customerMap[name].totalTickets += (Number(s.quantity) || 1);
-      customerMap[name].events.add(s.event);
-      customerMap[name].pendingDebt += debt;
+      if (s.category) customerMap[name].categories.add(s.category);
+      customerMap[name].pendingDebt += pending;
       customerMap[name].salesCount += 1;
       if (!customerMap[name].phone && s.customerPhone) {
         customerMap[name].phone = s.customerPhone;
       }
     });
 
-    const customers = Object.values(customerMap).sort((a, b) => b.totalSpent - a.totalSpent);
+    let customers = Object.values(customerMap).sort((a, b) => b.totalSpent - a.totalSpent);
+
+    // Apply filter
+    if (this.customerFilter === 'debt') {
+      customers = customers.filter(c => c.pendingDebt > 0);
+    } else if (this.customerFilter === 'paid') {
+      customers = customers.filter(c => c.pendingDebt === 0);
+    }
+
+    // Apply search
+    if (this.customerSearch) {
+      const q = this.customerSearch.toLowerCase().trim();
+      customers = customers.filter(c =>
+        c.name.toLowerCase().includes(q) ||
+        (c.phone || '').toLowerCase().includes(q) ||
+        Array.from(c.categories).some(cat => cat.toLowerCase().includes(q))
+      );
+    }
 
     if (!customers.length) {
       container.innerHTML = `
-        <div class="col-span-full p-8 text-center text-slate-400 glass-card">
-          <div class="text-4xl mb-3">👥</div>
-          <p class="font-semibold text-white">No hay clientes registrados aún</p>
-          <p class="text-xs text-slate-400 mt-1">Registra tu primera venta para ver aquí el historial de compradores.</p>
+        <div class="col-span-full p-10 text-center text-slate-400 glass-card">
+          <p class="font-bold text-white text-sm">No se encontraron clientes en esta vista</p>
+          <p class="text-xs text-slate-500 mt-1">Prueba cambiando el filtro o registrando una nueva venta.</p>
         </div>
       `;
       return;
     }
 
+    const p1 = window.storage.settings.partner1 || 'Santiago';
+    const p2 = window.storage.settings.partner2 || 'Sebas';
+
     container.innerHTML = customers.map(c => {
       const cleanPhone = (c.phone || '').replace(/\D/g, '');
       const waNumber = cleanPhone.length === 10 ? '57' + cleanPhone : cleanPhone;
-      const waMsg = encodeURIComponent(`Hola ${c.name}! Te escribimos Santiago & Sebas de Boletas Rituales 🎧⚡`);
       const hasDebt = c.pendingDebt > 0;
 
+      const waMsg = hasDebt
+        ? encodeURIComponent(`Hola ${c.name}! Te escribimos ${p1} & ${p2} de Boletas Rituales 🎧. Te recordamos el saldo pendiente de ${window.sales.formatMoney(c.pendingDebt)} de tus boletas. ¡Quedamos atentos!`)
+        : encodeURIComponent(`Hola ${c.name}! Te escribimos ${p1} & ${p2} de Boletas Rituales 🎧⚡`);
+
       return `
-        <div class="glass-card p-5 relative overflow-hidden flex flex-col justify-between">
+        <div class="glass-card glass-card-interactive p-5 flex flex-col justify-between">
           <div>
-            <div class="flex items-start justify-between gap-3 mb-2">
+            <div class="flex items-start justify-between gap-3 mb-3">
               <div>
                 <h3 class="font-bold text-white text-base leading-tight">${c.name}</h3>
-                <div class="text-xs text-slate-400 mt-0.5">
-                  ${c.phone ? `📞 <span class="font-mono">${c.phone}</span>` : '<span class="italic text-slate-600">Sin teléfono</span>'}
+                <div class="text-xs text-slate-400 mt-0.5 font-mono">
+                  ${c.phone ? c.phone : '<span class="font-sans italic text-slate-600">Sin teléfono registrado</span>'}
                 </div>
               </div>
-              <span class="badge ${hasDebt ? 'badge-pending pulse-warning' : 'badge-paid'} text-[11px]">
+              <span class="badge ${hasDebt ? 'badge-pending pulse-warning' : 'badge-paid'}">
                 ${hasDebt ? `Debe ${window.sales.formatMoney(c.pendingDebt)}` : 'Al Día'}
               </span>
             </div>
 
-            <div class="grid grid-cols-2 gap-2 bg-slate-900/60 p-3 rounded-xl border border-white/5 text-xs my-3">
+            <div class="grid grid-cols-2 gap-2.5 bg-black/35 p-3.5 rounded-xl border border-white/[0.05] text-xs my-3">
               <div>
-                <div class="text-slate-400">Total Comprado:</div>
-                <div class="font-mono font-bold text-cyan-300 text-sm">${window.sales.formatMoney(c.totalSpent)}</div>
+                <div class="text-slate-400 text-[11px]">Total Comprado</div>
+                <div class="font-mono font-bold text-white text-sm mt-0.5">${window.sales.formatMoney(c.totalSpent)}</div>
               </div>
               <div class="text-right">
-                <div class="text-slate-400">Boletas Adquiridas:</div>
-                <div class="font-mono font-bold text-white text-sm">${c.totalTickets} boletas</div>
+                <div class="text-slate-400 text-[11px]">Boletas Adquiridas</div>
+                <div class="font-mono font-bold text-cyan-300 text-sm mt-0.5">${c.totalTickets} boleta(s)</div>
               </div>
             </div>
 
             <div class="text-xs text-slate-400">
-              <span class="text-slate-500">Eventos:</span>
-              <div class="flex flex-wrap gap-1 mt-1">
-                ${Array.from(c.events).map(ev => `
-                  <span class="bg-violet-950/60 border border-violet-800/40 text-violet-300 px-2 py-0.5 rounded text-[11px]">
-                    ${ev}
+              <span class="text-slate-500 text-[11px]">Localidades compradas:</span>
+              <div class="flex flex-wrap gap-1.5 mt-1.5">
+                ${Array.from(c.categories).map(cat => `
+                  <span class="bg-white/[0.04] border border-white/[0.08] text-slate-300 px-2 py-0.5 rounded text-[11px] font-medium">
+                    ${cat}
                   </span>
                 `).join('')}
               </div>
             </div>
           </div>
 
-          <div class="pt-4 border-t border-slate-800/80 flex items-center justify-between mt-3">
-            <span class="text-xs text-slate-500">${c.salesCount} compras registradas</span>
+          <div class="pt-3.5 border-t border-white/[0.06] flex items-center justify-between mt-4">
+            <span class="text-xs text-slate-500">${c.salesCount} ${c.salesCount === 1 ? 'compra' : 'compras'}</span>
             ${c.phone ? `
-              <a href="https://wa.me/${waNumber}?text=${waMsg}" target="_blank" class="px-3 py-1.5 rounded-lg bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 text-xs font-semibold flex items-center gap-1.5 transition">
+              <a href="https://wa.me/${waNumber}?text=${waMsg}" target="_blank" class="px-3 py-1.5 rounded-lg ${hasDebt ? 'bg-amber-500/15 text-amber-300 border border-amber-500/30 hover:bg-amber-500/25' : 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/25 hover:bg-emerald-500/25'} text-xs font-semibold flex items-center gap-1.5 transition">
                 <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.007c.106.005.249-.04.39.298.144.347.491 1.2.534 1.288.043.088.072.19.014.305-.058.115-.087.187-.173.289l-.26.308c-.087.096-.178.201-.077.375.101.174.45 0.742.965 1.202.663.591 1.222.774 1.396.861.174.087.275.072.376-.044.101-.116.433-.506.549-.679.116-.173.231-.144.39-.087s1.011.477 1.184.564.289.13.332.202c.044.072.044.419-.1 0.824z"/></svg>
-                <span>WhatsApp</span>
+                <span>${hasDebt ? 'Cobrar por WhatsApp' : 'WhatsApp'}</span>
               </a>
             ` : ''}
           </div>
@@ -291,9 +333,8 @@ class UIManager {
           feedbackEl.className = 'block p-3 rounded-xl text-xs bg-emerald-950/80 border border-emerald-500/40 text-emerald-300';
           feedbackEl.innerHTML = `<b>${test.message}</b>`;
         }
-        this.showToast(`¡Conectado como @${test.username}!`, 'success');
-        // Push local data to ensure repository is in sync
-        await window.sync.pushToGitHub('Conexión inicial desde Ajustes');
+        this.showToast(`Conectado como @${test.username}`, 'success');
+        await window.sync.pushToGitHub('Conexión desde Ajustes');
       } else {
         if (feedbackEl) {
           feedbackEl.className = 'block p-3 rounded-xl text-xs bg-rose-950/80 border border-rose-500/40 text-rose-300 leading-relaxed';
@@ -330,10 +371,9 @@ class UIManager {
           feedbackEl.className = 'block p-3 rounded-xl text-xs bg-emerald-950/80 border border-emerald-500/40 text-emerald-300';
           feedbackEl.innerHTML = `<b>${test.message}</b>`;
         }
-        this.showToast(`🚀 ¡Conectado como @${test.username}!`, 'success');
+        this.showToast(`Conectado como @${test.username}`, 'success');
         this.loadSettingsForm();
 
-        // Push local state to GitHub repository
         await window.sync.pushToGitHub('Conexión inicial desde modal');
 
         if (typeof confetti === 'function') {
@@ -375,7 +415,7 @@ class UIManager {
     const directUrl = `${currentBase}?token=${token}`;
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(directUrl).then(() => {
-        this.showToast('📲 ¡Enlace copiado! Envíalo a Sebas por WhatsApp para que se conecte con 1 toque', 'success');
+        this.showToast('Enlace copiado. Envíalo a Sebas por WhatsApp para conexión en 1 toque', 'success');
       }).catch(() => {
         prompt('Copia este enlace de acceso directo para Sebas:', directUrl);
       });
@@ -401,7 +441,7 @@ class UIManager {
     });
 
     this.applyTheme(theme);
-    this.showToast('Configuraciones guardadas exitosamente', 'success');
+    this.showToast('Configuración guardada exitosamente', 'success');
     window.dashboard.update();
     window.sales.render();
   }
@@ -428,13 +468,19 @@ class UIManager {
     // Quick theme toggle button in header
     const quickThemeBtn = document.getElementById('btn-quick-theme');
     if (quickThemeBtn) {
-      const themes = ['neon', 'sunset', 'emerald', 'obsidian'];
+      const themes = ['neon', 'obsidian', 'emerald', 'sunset'];
+      const labels = {
+        neon: 'Carbon & Cyan',
+        obsidian: 'Pure Obsidian',
+        emerald: 'Emerald Club',
+        sunset: 'Sunset Terracotta'
+      };
       quickThemeBtn.addEventListener('click', () => {
         const current = window.storage.settings.theme || 'neon';
         const nextIdx = (themes.indexOf(current) + 1) % themes.length;
         const nextTheme = themes[nextIdx];
         this.applyTheme(nextTheme);
-        this.showToast(`Tema cambiado a: ${nextTheme.toUpperCase()}`, 'info');
+        this.showToast(`Tema visual: ${labels[nextTheme] || nextTheme}`, 'info');
       });
     }
 
@@ -447,11 +493,21 @@ class UIManager {
       });
     }
 
+    // Search input in Customers
+    const custSearchInput = document.getElementById('customers-search-input');
+    if (custSearchInput) {
+      custSearchInput.addEventListener('input', (e) => {
+        this.customerSearch = e.target.value;
+        this.renderCustomers();
+      });
+    }
+
     // Filter Payment
     const filterPayment = document.getElementById('filter-payment-select');
     if (filterPayment) {
       filterPayment.addEventListener('change', (e) => {
         window.sales.filterPayment = e.target.value;
+        window.sales.activePreset = 'custom';
         window.sales.render();
       });
     }
@@ -461,6 +517,7 @@ class UIManager {
     if (filterLiquidation) {
       filterLiquidation.addEventListener('change', (e) => {
         window.sales.filterLiquidation = e.target.value;
+        window.sales.activePreset = 'custom';
         window.sales.render();
       });
     }
@@ -530,7 +587,7 @@ class UIManager {
         reader.onload = (event) => {
           const success = window.storage.importBackupJSON(event.target.result);
           if (success) {
-            this.showToast('✅ Respaldo importado y restaurado con éxito', 'success');
+            this.showToast('Respaldo importado y restaurado con éxito', 'success');
             this.applyTheme(window.storage.settings.theme);
             this.loadSettingsForm();
             window.dashboard.update();
@@ -559,14 +616,14 @@ class UIManager {
     const p2 = window.storage.settings.partner2 || 'Sebas';
     const half = totalToLiquidate / 2;
 
-    if (confirm(`¿Liquidar todas las ${pendingSales.length} ventas pendientes?\n\nTotal Ganancia a Repartir: ${window.sales.formatMoney(totalToLiquidate)}\n${p1}: ${window.sales.formatMoney(half)}\n${p2}: ${window.sales.formatMoney(half)}`)) {
+    if (confirm(`¿Liquidar todas las ${pendingSales.length} ventas pendientes?\n\nTotal Utilidad a Repartir: ${window.sales.formatMoney(totalToLiquidate)}\n• ${p1}: ${window.sales.formatMoney(half)}\n• ${p2}: ${window.sales.formatMoney(half)}`)) {
       pendingSales.forEach(s => {
         window.storage.updateSale(s.id, { liquidationStatus: 'liquidado' });
       });
 
-      this.showToast(`🎉 ¡${pendingSales.length} ventas liquidadas entre ${p1} y ${p2}!`, 'success');
+      this.showToast(`${pendingSales.length} ventas liquidadas entre ${p1} y ${p2}`, 'success');
       if (typeof confetti === 'function') {
-        confetti({ particleCount: 90, spread: 80, origin: { y: 0.6 } });
+        confetti({ particleCount: 80, spread: 75, origin: { y: 0.6 } });
       }
       window.dashboard.update();
       window.sales.render();
@@ -575,9 +632,9 @@ class UIManager {
 
   // Reset demo data with confirmation
   confirmResetDemo() {
-    if (confirm('¿Restablecer datos de prueba iniciales de música electrónica (Rituales Fest, Afterlife, etc.)? Se reemplazarán los datos actuales.')) {
+    if (confirm('¿Restablecer datos iniciales de Rituales Fest? Se reemplazarán las ventas actuales en este navegador.')) {
       window.storage.resetDemoData();
-      this.showToast('Datos de demostración restablecidos', 'info');
+      this.showToast('Datos iniciales restablecidos', 'info');
       this.applyTheme(window.storage.settings.theme);
       this.loadSettingsForm();
       window.dashboard.update();
